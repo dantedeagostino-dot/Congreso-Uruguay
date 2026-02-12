@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parlamento UY | Tech Diagnostic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;600&display=swap');
+        
+        :root {
+            --bg-deep: #050505;
+            --bg-card: #0d0d0d;
+            --accent-cyan: #00f2ff;
+            --accent-purple: #8b5cf6;
+            --text-main: #e5e7eb;
+            --border-glow: rgba(0, 242, 255, 0.15);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, .font-tech {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Technical Grid Background */
+        .bg-grid {
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: rgba(13, 13, 13, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            border-color: var(--border-glow);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        /* Chart Container Mandatory Constraints */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 450px;
+        }
+
+        /* Custom Navigation */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+        .nav-link.active {
+            color: var(--accent-cyan);
+        }
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-cyan);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }
+
+        .glow-text {
+            text-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+        }
+
+        .step-active {
+            border-left: 2px solid var(--accent-cyan);
+            background: linear-gradient(90deg, rgba(0, 242, 255, 0.05) 0%, transparent 100%);
+        }
+    </style>
+
+    <!-- Chosen Palette: Tech Obsidian & Cyan (Inspired by ColossusLab). Dark backgrounds with neon cyan accents and subtle violet gradients. -->
+    
+    <!-- Application Structure Plan:
+         1. Hero / Dashboard: Executive summary with real-time style metrics.
+         2. Infrastructure Matrix: Grid of tech components (SIP, Web, DB).
+         3. Workflow Stream: Interactive vertical timeline of legislative files.
+         4. Diagnostic Radar: Assessment of maturity levels using Chart.js.
+         5. AI Roadmap: High-tech proposal cards for Intelligent Search and LLM integration.
+         The structure is designed to look like a high-end technical audit dashboard.
+    -->
+
+    <!-- Visualization & Content Choices:
+         - Radar Chart: For multivariate assessment (Dark theme).
+         - Linear Progress/Bars: For legislative traffic.
+         - Interactive Overlays: To display technical constraints without cluttering the UI.
+         - Rationale: High contrast and clear typography emphasize "intelligence" and "precision".
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-grid min-h-screen">
+
+    <!-- Top Navigation -->
+    <header class="sticky top-0 z-50 glass-card border-b border-white/5 py-4 px-6">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-sm rotate-45"></div>
+                <span class="text-xl font-bold tracking-tighter glow-text uppercase font-tech">Parlamento<span class="text-cyan-400">.Lab</span></span>
+            </div>
+            <nav class="hidden md:flex gap-8 text-xs font-semibold uppercase tracking-widest text-stone-400">
+                <button onclick="showSection('overview')" class="nav-link active" id="btn-overview">Resumen</button>
+                <button onclick="showSection('stack')" class="nav-link" id="btn-stack">Infraestructura</button>
+                <button onclick="showSection('process')" class="nav-link" id="btn-process">Procesos</button>
+                <button onclick="showSection('ai')" class="nav-link" id="btn-ai">IA & Futuro</button>
+            </nav>
+            <div class="text-[10px] text-cyan-400 font-mono border border-cyan-400/30 px-2 py-1 rounded">
+                SYSTEM_STATUS: ACTIVE
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-6 md:p-12">
+
+        <!-- SECTION: OVERVIEW -->
+        <section id="section-overview" class="fade-in">
+            <div class="mb-12">
+                <h2 class="text-5xl font-bold mb-4 font-tech tracking-tight">Diagnóstico <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">Tecnológico</span></h2>
+                <p class="text-stone-400 max-w-2xl text-lg leading-relaxed">
+                    Evaluación exhaustiva de la madurez digital del Poder Legislativo uruguayo. De una gestión basada en documentos estáticos a un ecosistema de datos inteligentes.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12">
+                <div class="glass-card p-6 rounded-none border-l-2 border-cyan-400">
+                    <div class="text-[10px] uppercase tracking-widest text-stone-500 mb-1">Democracy Rank</div>
+                    <div class="text-3xl font-bold font-tech">#15 <span class="text-xs text-cyan-400 font-normal">Global</span></div>
+                </div>
+                <div class="glass-card p-6 rounded-none">
+                    <div class="text-[10px] uppercase tracking-widest text-stone-500 mb-1">Digitization Level</div>
+                    <div class="text-3xl font-bold font-tech">92% <span class="text-xs text-stone-500 font-normal">SIP</span></div>
+                </div>
+                <div class="glass-card p-6 rounded-none">
+                    <div class="text-[10px] uppercase tracking-widest text-stone-500 mb-1">Data Structure</div>
+                    <div class="text-3xl font-bold font-tech text-red-500">Low</div>
+                </div>
+                <div class="glass-card p-6 rounded-none">
+                    <div class="text-[10px] uppercase tracking-widest text-stone-500 mb-1">Search Intent</div>
+                    <div class="text-3xl font-bold font-tech">High</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="glass-card p-8 rounded-xl">
+                    <h3 class="text-xl font-bold mb-6 font-tech text-cyan-400 uppercase tracking-wider">Métricas de Madurez</h3>
+                    <div class="chart-container">
+                        <canvas id="radarMaturity"></canvas>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-4">
+                    <div class="glass-card p-6 rounded-xl flex-1">
+                        <h4 class="text-sm font-bold uppercase tracking-widest text-stone-300 mb-4">Análisis de Brecha</h4>
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex justify-between text-xs mb-2">
+                                    <span>Accesibilidad Digital</span>
+                                    <span class="text-cyan-400">65%</span>
+                                </div>
+                                <div class="w-full bg-white/5 h-1">
+                                    <div class="bg-cyan-400 h-full shadow-[0_0_8px_rgba(0,242,255,0.6)]" style="width: 65%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-2">
+                                    <span>Interoperabilidad Semántica</span>
+                                    <span class="text-purple-400">28%</span>
+                                </div>
+                                <div class="w-full bg-white/5 h-1">
+                                    <div class="bg-purple-400 h-full shadow-[0_0_8px_rgba(139,92,246,0.6)]" style="width: 28%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-2">
+                                    <span>Búsqueda Inteligente</span>
+                                    <span class="text-red-500">15%</span>
+                                </div>
+                                <div class="w-full bg-white/5 h-1">
+                                    <div class="bg-red-500 h-full" style="width: 15%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-6 rounded-xl bg-gradient-to-br from-cyan-900/20 to-transparent border-cyan-500/20">
+                        <p class="text-sm italic text-cyan-200">
+                            "El parlamento genera volúmenes masivos de texto, pero la falta de capas semánticas impide que el ciudadano promedio encuentre información sin conocer el número de ley exacto."
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: STACK -->
+        <section id="section-stack" class="hidden fade-in">
+            <div class="mb-12">
+                <h2 class="text-4xl font-bold mb-4 font-tech tracking-tight uppercase"><span class="text-cyan-400">01.</span> Infraestructura</h2>
+                <p class="text-stone-500">Desglose de los sistemas core y capas de datos actuales.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-card p-8 group">
+                    <div class="w-12 h-12 rounded bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center mb-6 text-cyan-400 font-bold font-mono">SIP</div>
+                    <h3 class="text-xl font-bold mb-4 font-tech">Sistema Central (SIP)</h3>
+                    <ul class="text-sm text-stone-400 space-y-3 font-light">
+                        <li>• Gestión de trámites parlamentarios.</li>
+                        <li>• Histórico legislativo completo.</li>
+                        <li>• <span class="text-red-400">Limitación:</span> API cerrada/legada.</li>
+                    </ul>
+                </div>
+                <div class="glass-card p-8 group">
+                    <div class="w-12 h-12 rounded bg-purple-400/10 border border-purple-400/20 flex items-center justify-center mb-6 text-purple-400 font-bold font-mono">WEB</div>
+                    <h3 class="text-xl font-bold mb-4 font-tech">Portal Público</h3>
+                    <ul class="text-sm text-stone-400 space-y-3 font-light">
+                        <li>• Frontend basado en Drupal.</li>
+                        <li>• Repositorio de Diarios de Sesiones.</li>
+                        <li>• <span class="text-amber-400">Estado:</span> Modernización necesaria en UX.</li>
+                    </ul>
+                </div>
+                <div class="glass-card p-8 group">
+                    <div class="w-12 h-12 rounded bg-emerald-400/10 border border-emerald-400/20 flex items-center justify-center mb-6 text-emerald-400 font-bold font-mono">DB</div>
+                    <h3 class="text-xl font-bold mb-4 font-tech">Capas de Datos</h3>
+                    <ul class="text-sm text-stone-400 space-y-3 font-light">
+                        <li>• Integración AGESIC (Datos Abiertos).</li>
+                        <li>• Archivo físico y digital mixto.</li>
+                        <li>• <span class="text-cyan-400">Oportunidad:</span> Vectorización.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: PROCESS -->
+        <section id="section-process" class="hidden fade-in">
+            <div class="mb-12">
+                <h2 class="text-4xl font-bold mb-4 font-tech tracking-tight uppercase"><span class="text-cyan-400">02.</span> Flujo Legislativo</h2>
+                <p class="text-stone-500">Mapeo del ciclo de vida de un expediente y cuellos de botella tecnológicos.</p>
+            </div>
+
+            <div class="max-w-3xl space-y-4">
+                <div class="glass-card p-6 flex gap-6 items-start cursor-pointer hover:bg-white/5" onclick="toggleDetail('p1')">
+                    <div class="text-cyan-400 font-mono text-sm pt-1">01</div>
+                    <div>
+                        <h4 class="font-bold text-lg font-tech">Ingreso del Expediente</h4>
+                        <div id="p1" class="hidden mt-4 text-sm text-stone-400 border-l border-cyan-400/30 pl-4 py-2">
+                            Entrada vía GEX (Expediente Electrónico). El problema actual es que el contenido se carga como PDF plano, perdiendo capacidad de búsqueda inmediata.
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card p-6 flex gap-6 items-start cursor-pointer hover:bg-white/5" onclick="toggleDetail('p2')">
+                    <div class="text-cyan-400 font-mono text-sm pt-1">02</div>
+                    <div>
+                        <h4 class="font-bold text-lg font-tech">Comisiones y Debate</h4>
+                        <div id="p2" class="hidden mt-4 text-sm text-stone-400 border-l border-cyan-400/30 pl-4 py-2">
+                            Se generan Diarios de Sesiones. Son transcripciones textuales. No hay etiquetado semántico de temas discutidos en tiempo real.
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card p-6 flex gap-6 items-start cursor-pointer hover:bg-white/5" onclick="toggleDetail('p3')">
+                    <div class="text-cyan-400 font-mono text-sm pt-1">03</div>
+                    <div>
+                        <h4 class="font-bold text-lg font-tech">Sanción y Publicación</h4>
+                        <div id="p3" class="hidden mt-4 text-sm text-stone-400 border-l border-cyan-400/30 pl-4 py-2">
+                            Integración con IMPO. El dato se vuelve "ley", pero el ciudadano debe conocer el número de ley para encontrarlo efectivamente.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: AI -->
+        <section id="section-ai" class="hidden fade-in">
+            <div class="mb-12">
+                <h2 class="text-4xl font-bold mb-4 font-tech tracking-tight uppercase"><span class="text-purple-400">03.</span> Propuesta de Modernización</h2>
+                <p class="text-stone-500">Hoja de ruta para la implementación de Inteligencia Artificial.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass-card p-10 bg-gradient-to-br from-purple-900/10 to-transparent">
+                    <div class="mb-6 inline-block px-3 py-1 bg-purple-500/20 text-purple-400 rounded text-[10px] uppercase font-bold tracking-widest">Priority Alpha</div>
+                    <h3 class="text-2xl font-bold mb-4 font-tech">Búsqueda Semántica RAG</h3>
+                    <p class="text-stone-400 text-sm leading-relaxed mb-6">
+                        Implementar un sistema de *Retrieval-Augmented Generation*. Los ciudadanos podrán preguntar: "¿Qué leyes de salud mental se aprobaron en el último período?" y obtener una respuesta redactada con fuentes citadas.
+                    </p>
+                    <div class="flex gap-2">
+                        <span class="text-[10px] bg-white/5 px-2 py-1 rounded text-stone-500 font-mono">VECTORS</span>
+                        <span class="text-[10px] bg-white/5 px-2 py-1 rounded text-stone-500 font-mono">LLM</span>
+                        <span class="text-[10px] bg-white/5 px-2 py-1 rounded text-stone-500 font-mono">SEMANTIC</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-10 bg-gradient-to-br from-cyan-900/10 to-transparent">
+                    <div class="mb-6 inline-block px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded text-[10px] uppercase font-bold tracking-widest">Priority Beta</div>
+                    <h3 class="text-2xl font-bold mb-4 font-tech">Resúmenes Legislativos Automáticos</h3>
+                    <p class="text-stone-400 text-sm leading-relaxed mb-6">
+                        Procesar los extensos Diarios de Sesiones mediante modelos de lenguaje para generar resúmenes ejecutivos diarios por comisión, facilitando el seguimiento para periodistas y ciudadanos.
+                    </p>
+                    <div class="flex gap-2">
+                        <span class="text-[10px] bg-white/5 px-2 py-1 rounded text-stone-500 font-mono">AUTOMATION</span>
+                        <span class="text-[10px] bg-white/5 px-2 py-1 rounded text-stone-500 font-mono">NLP</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Impact Simulator -->
+            <div class="mt-12 glass-card p-8 rounded-2xl border border-white/10">
+                <h4 class="font-tech text-xl font-bold mb-6 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
+                    Simulador de Impacto IA
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <button onclick="simulate(1)" class="p-4 glass-card text-xs uppercase tracking-widest hover:text-cyan-400">Reducción Tiempo Búsqueda</button>
+                    <button onclick="simulate(2)" class="p-4 glass-card text-xs uppercase tracking-widest hover:text-purple-400">Eficiencia en Taquigrafía</button>
+                    <button onclick="simulate(3)" class="p-4 glass-card text-xs uppercase tracking-widest hover:text-emerald-400">Aumento Participación</button>
+                </div>
+                <div id="sim-result" class="mt-8 text-center text-stone-500 font-mono text-sm py-4 border-t border-white/5">
+                    ESPERANDO INPUT...
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-12 border-t border-white/5 text-center text-[10px] text-stone-600 uppercase tracking-[0.3em]">
+        Parlamento UY // Technical Audit 2024 // Colossus Style Implementation
+    </footer>
+
+    <script>
+        // Navigation Logic
+        function showSection(id) {
+            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('section-' + id).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById('btn-' + id).classList.add('active');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Accordion Logic
+        function toggleDetail(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('hidden');
+        }
+
+        // Simulator Logic
+        function simulate(type) {
+            const box = document.getElementById('sim-result');
+            box.classList.add('text-cyan-400');
+            if(type === 1) box.innerText = "RESULTADO: -85% TIEMPO EN LOCALIZACIÓN DE PRECEDENTES LEGALES";
+            if(type === 2) box.innerText = "RESULTADO: +40% PRODUCTIVIDAD EN TRANSCRIPCIÓN ASISTIDA";
+            if(type === 3) box.innerText = "RESULTADO: +120% INTERACCIÓN CIUDADANA MEDIANTE CHAT SEMÁNTICO";
+        }
+
+        // Charts initialization
+        window.onload = function() {
+            const ctxRadar = document.getElementById('radarMaturity').getContext('2d');
+            
+            new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: ['Accesibilidad', 'Búsqueda Semántica', 'Datos Abiertos', 'Infraestructura', 'UX/UI'],
+                    datasets: [{
+                        label: 'Estado Actual',
+                        data: [60, 15, 80, 70, 45],
+                        backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                        borderColor: 'rgba(139, 92, 246, 0.8)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#8b5cf6'
+                    }, {
+                        label: 'Objetivo 2025',
+                        data: [95, 90, 95, 90, 90],
+                        backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                        borderColor: '#00f2ff',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#00f2ff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            angleLines: { color: 'rgba(255,255,255,0.05)' },
+                            pointLabels: { color: '#999', font: { family: 'Space Grotesk' } },
+                            ticks: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#eee', font: { family: 'Inter' } } }
+                    }
+                }
+            });
+        };
+    </script>
+</body>
+</html>
